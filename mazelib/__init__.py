@@ -18,9 +18,9 @@ def register_gen_classes(classes):
     for cls in classes:
         register_gen_class(cls)
 
-def gen(alg_name, width, height):
+def gen(alg_name, width, height, *args, **kwargs):
     cls = gen_classes[alg_name]
-    g = cls(width, height)
+    g = cls(width, height, *args, **kwargs)
     return g.generate()
 
 import mazelib.generate as _generate
