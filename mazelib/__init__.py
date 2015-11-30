@@ -27,4 +27,5 @@ import mazelib.generate as _generate
 register_gen_classes([
     _generate.Backtracking,
     _generate.BacktrackingRecursive,
+    _generate.Kruskal,
 ])
