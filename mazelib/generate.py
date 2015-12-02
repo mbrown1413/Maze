@@ -128,28 +128,34 @@ class Kruskal(MazeGen):
 
     Wall = collections.namedtuple("Wall", "c1 d c2")
 
-    def generate(self):
-        m = Maze(self.width, self.height)
-
-        candidate_walls = set(self.get_all_walls())
-        labels = [[(x,y) for y in range(self.height)]
+    def init(self):
+        self.m = Maze(self.width, self.height)
+        self.candidate_walls = set(self.get_all_walls())
+        self.labels = [[(x,y) for y in range(self.height)]
                          for x in range(self.width)]
 
-        while candidate_walls:
-            w = random.choice(list(candidate_walls))
-            candidate_walls.remove(w)
-            if labels[w.c1[0]][w.c1[1]] != labels[w.c2[0]][w.c2[1]]:
-                m[w.c1].remove(w.d)
-                c2_label = labels[w.c2[0]][w.c2[1]]
-                self.chance_label(labels, w.c1, c2_label)
+    def step(self):
+        w = random.choice(list(self.candidate_walls))
+        self.candidate_walls.remove(w)
+        if self.labels[w.c1[0]][w.c1[1]] != self.labels[w.c2[0]][w.c2[1]]:
+            self.m[w.c1].remove(w.d)
+            c2_label = self.labels[w.c2[0]][w.c2[1]]
+            self.chance_label(self.labels, w.c1, c2_label)
+
+        return self.m
+
+    def is_finished(self):
+        return len(self.candidate_walls) == 0
+
+    def finish(self):
 
         #TODO: Better enter and exit
         enter_x = random.randrange(self.width)
         exit_x = random.randrange(self.width)
-        m[enter_x,0].remove(N)
-        m[exit_x,self.height-1].remove(S)
+        self.m[enter_x,0].remove(N)
+        self.m[exit_x,self.height-1].remove(S)
 
-        return m
+        return self.m
 
     def chance_label(self, labels, coordinates, new_label):
         x, y = coordinates
