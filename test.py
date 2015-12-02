@@ -6,6 +6,7 @@ import mazelib
 
 
 def main():
+    algorithm = "backtracking"
     width = 20
     height = 10
     if len(sys.argv) > 1:
@@ -17,8 +18,10 @@ def main():
     if len(sys.argv) > 4:
         raise ValueError()
 
-    m = mazelib.gen(algorithm, width, height)
-    print(m.to_str())
+    cls = mazelib.generators[algorithm]
+    g = cls(width, height)
+    for m in g.iter_steps():
+        print(m.to_str())
 
 
 if __name__ == "__main__":

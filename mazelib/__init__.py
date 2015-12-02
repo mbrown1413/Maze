@@ -8,24 +8,24 @@ from mazelib.maze import Maze, Cell
 from mazelib.maze import N, S, E, W, NORTH, SOUTH, EAST, WEST
 from mazelib.maze import DIRECTIONS, OPPOSITE_DIRECTION, DELTAS
 
-gen_classes = {}
+generators = {}
 def register_gen_class(cls):
     assert cls.name != None
-    assert cls.name not in gen_classes
-    gen_classes[cls.name] = cls
+    assert cls.name not in generators
+    generators[cls.name] = cls
 
 def register_gen_classes(classes):
     for cls in classes:
         register_gen_class(cls)
 
 def gen(alg_name, width, height, *args, **kwargs):
-    cls = gen_classes[alg_name]
+    cls = generators[alg_name]
     g = cls(width, height, *args, **kwargs)
     return g.generate()
 
-import mazelib.generate as _generate
+from mazelib import generate
 register_gen_classes([
-    _generate.Backtracking,
-    _generate.BacktrackingRecursive,
-    _generate.Kruskal,
+    generate.Backtracking,
+    generate.BacktrackingRecursive,
+    generate.Kruskal,
 ])

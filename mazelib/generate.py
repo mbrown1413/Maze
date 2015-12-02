@@ -12,8 +12,29 @@ class MazeGen():
         self.width = width
         self.height = height
 
-    def generate(self):
+    def init(self):
+        pass
+
+    def step(self):
+        pass
+
+    def is_finished(self):
         raise NotImplementedError()
+
+    def finish(self):
+        raise NotImplementedError()
+
+    def generate(self):
+        self.init()
+        while not self.is_finished():
+            self.step()
+        return self.finish()
+
+    def iter_steps(self):
+        self.init()
+        while not self.is_finished():
+            yield self.step()
+        yield self.finish()
 
     def in_bounds(self, x, y):
         return x>=0 and y>=0 and x<self.width and y<self.height
@@ -25,43 +46,47 @@ class Backtracking(MazeGen):
     """
     name = "backtracking"
 
-    def generate(self):
-        m = Maze(self.width, self.height)
+    def init(self):
+        self.m = Maze(self.width, self.height)
 
-        #enter_x = random.randrange(self.width)
-        enter_x = 0
-        exit_x = random.randrange(self.width)
-        m[enter_x,0].remove(N)
+        self.enter_x = 0
+        self.exit_x = random.randrange(self.width)
+        self.m[self.enter_x,0].remove(N)
 
-        longest_bot_path = 0
-        stack = [(enter_x, 0)]
-        visited = set(stack)
-        while stack:
-            x, y = stack[-1]
-            #print(m.to_str())
-            #import time; time.sleep(0.01)
+        self.longest_bot_path = 0
+        self.stack = [(self.enter_x, 0)]
+        self.visited = set(self.stack)
 
-            if y == self.height-1 and len(stack) > longest_bot_path:
-                longest_bot_path = len(stack)
-                exit_x = x
+    def step(self):
+        x, y = self.stack[-1]
 
-            ds = list(DIRECTIONS)
-            random.shuffle(ds)
-            neighbor_found = False
-            for d in ds:
-                nx = x + DELTAS[d][0]
-                ny = y + DELTAS[d][1]
-                if m.in_bounds(nx, ny) and (nx, ny) not in visited:
-                    m[x,y].remove(d)
-                    stack.append((nx, ny))
-                    visited.add((nx, ny))
-                    neighbor_found = True
-                    break
-            if not neighbor_found:
-                stack.pop()
+        if y == self.height-1 and len(self.stack) > self.longest_bot_path:
+            self.longest_bot_path = len(self.stack)
+            self.exit_x = x
 
-        m[exit_x,self.height-1].remove(S)
-        return m
+        ds = list(DIRECTIONS)
+        random.shuffle(ds)
+        neighbor_found = False
+        for d in ds:
+            nx = x + DELTAS[d][0]
+            ny = y + DELTAS[d][1]
+            if self.in_bounds(nx, ny) and (nx, ny) not in self.visited:
+                self.m[x,y].remove(d)
+                self.stack.append((nx, ny))
+                self.visited.add((nx, ny))
+                neighbor_found = True
+                break
+        if not neighbor_found:
+            self.stack.pop()
+
+        return self.m
+
+    def finish(self):
+        self.m[self.exit_x,self.height-1].remove(S)
+        return self.m
+
+    def is_finished(self):
+        return len(self.stack) == 0
 
 
 class BacktrackingRecursive(MazeGen):
