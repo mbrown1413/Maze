@@ -140,7 +140,7 @@ class Kruskal(MazeGen):
         if self.labels[w.c1[0]][w.c1[1]] != self.labels[w.c2[0]][w.c2[1]]:
             self.m[w.c1].remove(w.d)
             c2_label = self.labels[w.c2[0]][w.c2[1]]
-            self.chance_label(self.labels, w.c1, c2_label)
+            self.change_label(self.labels, w.c1, c2_label)
 
         return self.m
 
@@ -157,7 +157,7 @@ class Kruskal(MazeGen):
 
         return self.m
 
-    def chance_label(self, labels, coordinates, new_label):
+    def change_label(self, labels, coordinates, new_label):
         x, y = coordinates
         old_label = labels[x][y]
         for x in range(self.width):
