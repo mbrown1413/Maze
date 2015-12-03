@@ -25,7 +25,7 @@ def gen(alg_name, width, height, *args, **kwargs):
 
 from mazelib import generate
 register_gen_classes([
-    generate.Backtracking,
-    generate.BacktrackingRecursive,
+    generate.Backtrack,
+    generate.BacktrackRecursive,
     generate.Kruskal,
 ])

@@ -40,11 +40,11 @@ class MazeGen():
         return x>=0 and y>=0 and x<self.width and y<self.height
 
 
-class Backtracking(MazeGen):
+class Backtrack(MazeGen):
     """
         http://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking
     """
-    name = "backtracking"
+    name = "backtrack"
 
     def init(self):
         self.m = Maze(self.width, self.height)
@@ -89,11 +89,11 @@ class Backtracking(MazeGen):
         return len(self.stack) == 0
 
 
-class BacktrackingRecursive(MazeGen):
+class BacktrackRecursive(MazeGen):
     """
         http://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking
     """
-    name = "backtracking_recursive"
+    name = "backtrack_recursive"
 
     def generate(self):
         m = Maze(self.width, self.height)
