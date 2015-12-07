@@ -20,7 +20,7 @@ def main():
             help="Width of the maze.")
     parser.add_argument("height", nargs="?", type=int, default=30,
             help="Height of the maze.")
-    parser.add_argument("--algorithm", "--alg", "-a", default="backtracking",
+    parser.add_argument("--algorithm", "--alg", "-a", default="backtrack",
             choices=mazelib.generators.keys(),
             help='Maze generation algorithm to use. One of: '
             '{}'.format(list(mazelib.generators.keys())))
