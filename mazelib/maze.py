@@ -245,17 +245,17 @@ class RectMaze(Maze):
                 #      the maze.
                 a = 0
                 if self.in_bounds(x, y):
-                    if self[x,y][E]: a |= N
-                    if self[x,y][S]: a |= W
+                    if self._cells[x,y] & E: a |= N
+                    if self._cells[x,y] & S: a |= W
                 if self.in_bounds(x+1, y):
-                    if self[x+1,y][W]: a |= N
-                    if self[x+1,y][S]: a |= E
+                    if self._cells[x+1,y] & W: a |= N
+                    if self._cells[x+1,y] & S: a |= E
                 if self.in_bounds(x, y+1):
-                    if self[x,y+1][E]: a |= S
-                    if self[x,y+1][N]: a |= W
+                    if self._cells[x,y+1] & E: a |= S
+                    if self._cells[x,y+1] & N: a |= W
                 if self.in_bounds(x+1, y+1):
-                    if self[x+1,y+1][W]: a |= S
-                    if self[x+1,y+1][N]: a |= E
+                    if self._cells[x+1,y+1] & W: a |= S
+                    if self._cells[x+1,y+1] & N: a |= E
 
                 s.append(WALL_CHARS[a])
             s.append("\n")
