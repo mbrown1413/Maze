@@ -36,17 +36,19 @@ def main():
         clear_chr = get_special_char("clear")
         lineup_chr = get_special_char("cuu1")  # Moves cursor 1 line up
 
+        m = mazelib.RectMaze(args.width, args.height)
         cls = mazelib.generators[args.algorithm]
-        g = cls(args.width, args.height)
+        gen = cls(m)
         print(clear_chr)
-        for i, m in enumerate(g.iter_steps()):
+        for i, m in enumerate(gen.iter_steps()):
             if i % (args.skip+1) == 0:
                 print(lineup_chr*(args.height+1) + m.to_str())
         if i % (args.skip+1) != 0:
             print(lineup_chr*(args.height+1) + m.to_str())
 
     else:
-        m = mazelib.gen(args.algorithm, args.width, args.height)
+        m = mazelib.RectMaze(args.width, args.height)
+        m = mazelib.gen(m, args.algorithm)
         print(m.to_str())
 
 

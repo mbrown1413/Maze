@@ -2,15 +2,14 @@
 import random
 import collections
 
-from mazelib import Maze, N, E, S, W, DIRECTIONS, DELTAS
+from mazelib import Maze, N, S
 
 
 class MazeGen():
     name = None
 
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
+    def __init__(self, maze):
+        self.m = maze
 
     def init(self):
         pass
@@ -22,7 +21,7 @@ class MazeGen():
         raise NotImplementedError()
 
     def finish(self):
-        raise NotImplementedError()
+        return self.m
 
     def generate(self):
         self.init()
@@ -46,34 +45,47 @@ class Backtrack(MazeGen):
     """
     name = "backtrack"
 
+    ENTER_SIDE = N
+    EXIT_SIDE = S
+
     def init(self):
-        self.m = Maze(self.width, self.height)
 
-        self.enter_x = 0
-        self.exit_x = random.randrange(self.width)
-        self.m[self.enter_x,0].remove(N)
+        # Entrance fixed here to be random
+        enter_wall = random.choice(list(
+            self.m.side_get(self.ENTER_SIDE).walls
+        ))
+        enter_wall.remove()
+        enter_cell = enter_wall.c1
 
-        self.longest_bot_path = 0
-        self.stack = [(self.enter_x, 0)]
-        self.visited = set(self.stack)
+        # Exit chosen random for now, but will be changed later to be the
+        # furthest possible from the entrance. Only at the end will we remove
+        # this wall, since these will change during generation.
+        self.exit_cell = random.choice(list(
+            self.m.side_get(self.EXIT_SIDE).cells
+        ))
+        self.exit_dist = 0  # Distance between entrance and exit
+
+        self.stack = [enter_cell]
+        self.visited = set(enter_cell.cell_id)
 
     def step(self):
-        x, y = self.stack[-1]
+        cell = self.stack[-1]
 
-        if y == self.height-1 and len(self.stack) > self.longest_bot_path:
-            self.longest_bot_path = len(self.stack)
-            self.exit_x = x
+        # Move exit cell if this is further away from the entrance than the
+        # current one.
+        if cell.is_on_side(self.EXIT_SIDE) and len(self.stack) > self.exit_dist:
+            self.exit_dist = len(self.stack)
+            self.exit_cell = cell
 
-        ds = list(DIRECTIONS)
-        random.shuffle(ds)
+        walls = list(cell.interior_walls)
+        random.shuffle(walls)
         neighbor_found = False
-        for d in ds:
-            nx = x + DELTAS[d][0]
-            ny = y + DELTAS[d][1]
-            if self.in_bounds(nx, ny) and (nx, ny) not in self.visited:
-                self.m[x,y].remove(d)
-                self.stack.append((nx, ny))
-                self.visited.add((nx, ny))
+        for wall in walls:
+            other_cell = wall.c2
+            if other_cell.cell_id not in self.visited:
+                wall.remove()
+                self.stack.append(other_cell)
+                self.visited.add(other_cell.cell_id)
                 neighbor_found = True
                 break
         if not neighbor_found:
@@ -82,7 +94,7 @@ class Backtrack(MazeGen):
         return self.m
 
     def finish(self):
-        self.m[self.exit_x,self.height-1].remove(S)
+        self.exit_cell.get_side_wall(self.EXIT_SIDE).remove()
         return self.m
 
     def is_finished(self):
@@ -95,29 +107,35 @@ class BacktrackRecursive(MazeGen):
     """
     name = "backtrack_recursive"
 
-    def generate(self):
-        m = Maze(self.width, self.height)
+    ENTER_SIDE = N
+    EXIT_SIDE = S
 
-        enter_x = random.randrange(self.width)
-        exit_x = random.randrange(self.width)
-        m[enter_x,0].remove(N)
-        m[exit_x,self.height-1].remove(S)
+    def generate(self):
+
+        enter_wall = random.choice(list(
+            self.m.side_get(self.ENTER_SIDE).walls
+        ))
+        enter_wall.remove()
+
+        exit_wall = random.choice(list(
+            self.m.side_get(self.ENTER_SIDE).walls
+        ))
+        exit_wall.remove()
 
         visited = set()
-        def recurse(x, y):
-            ds = list(DIRECTIONS)
-            visited.add((x, y))
-            random.shuffle(ds)
-            for d in ds:
-                nx = x + DELTAS[d][0]
-                ny = y + DELTAS[d][1]
-                if m.in_bounds(nx, ny) and (nx, ny) not in visited:
-                    m[x,y].remove(d)
-                    recurse(nx, ny)
+        def recurse(cell):
+            visited.add(cell.cell_id)
+            walls = list(cell.interior_walls)
+            random.shuffle(walls)
+            for wall in walls:
+                other_cell = wall.c2
+                if other_cell.cell_id not in visited:
+                    wall.remove()
+                    recurse(other_cell)
 
-        recurse(enter_x, 0)
+        recurse(enter_wall.c1)
 
-        return m
+        return self.m
 
 
 class Kruskal(MazeGen):
@@ -126,53 +144,42 @@ class Kruskal(MazeGen):
     """
     name = "kruskal"
 
-    Wall = collections.namedtuple("Wall", "c1 d c2")
+    ENTER_SIDE = N
+    EXIT_SIDE = S
 
     def init(self):
-        self.m = Maze(self.width, self.height)
-        self.candidate_walls = set(self.get_all_walls())
-        self.labels = [[(x,y) for y in range(self.height)]
-                         for x in range(self.width)]
+        self.candidate_walls = filter(lambda w: w.interior, self.m.walls_get_all())
+        self.candidate_walls = list(self.candidate_walls)
+        random.shuffle(self.candidate_walls)
+        self.labels = {}  # Maps cell ids to labels
+
+        # Remove random entrance wall
+        enter_wall = random.choice(list(
+            self.m.side_get(self.ENTER_SIDE).walls
+        ))
+        enter_wall.remove()
+
+        # Remove random exit wall
+        exit_wall = random.choice(list(
+            self.m.side_get(self.EXIT_SIDE).walls
+        ))
+        exit_wall.remove()
 
     def step(self):
-        w = random.choice(list(self.candidate_walls))
-        self.candidate_walls.remove(w)
-        if self.labels[w.c1[0]][w.c1[1]] != self.labels[w.c2[0]][w.c2[1]]:
-            self.m[w.c1].remove(w.d)
-            c2_label = self.labels[w.c2[0]][w.c2[1]]
-            self.change_label(self.labels, w.c1, c2_label)
+        w = self.candidate_walls.pop()
+        label1 = self.labels.get(w.c1.cell_id, w.c1.cell_id)
+        label2 = self.labels.get(w.c2.cell_id, w.c2.cell_id)
+        if label1 != label2:
+            w.remove()
+
+            # Set c1's label to c2's
+            self.labels[w.c1.cell_id] = label2
+            self.labels[w.c2.cell_id] = label2
+            for cell_id, label in self.labels.items():
+                if label == label1:
+                    self.labels[cell_id] = label2
 
         return self.m
 
     def is_finished(self):
         return len(self.candidate_walls) == 0
-
-    def finish(self):
-
-        #TODO: Better enter and exit
-        enter_x = random.randrange(self.width)
-        exit_x = random.randrange(self.width)
-        self.m[enter_x,0].remove(N)
-        self.m[exit_x,self.height-1].remove(S)
-
-        return self.m
-
-    def change_label(self, labels, coordinates, new_label):
-        x, y = coordinates
-        old_label = labels[x][y]
-        for x in range(self.width):
-            for y in range(self.height):
-                if labels[x][y] == old_label:
-                    labels[x][y] = new_label
-
-    def get_all_walls(self):
-        for x in range(self.width-1):
-            for y in range(self.height-1):
-                yield self.Wall((x, y), E, (x+1, y))
-                yield self.Wall((x, y), S, (x, y+1))
-
-        for x in range(self.width-1):
-            yield self.Wall((x, self.height-1), E, (x+1, self.height-1))
-
-        for y in range(self.height-1):
-            yield self.Wall((self.width-1, y), S, (self.width-1, y+1))
