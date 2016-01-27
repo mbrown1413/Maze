@@ -4,8 +4,7 @@ if sys.version_info < (3, 2):
     raise RuntimeError("Python version 3.2 or greater is required")
 
 
-from mazelib.maze import Maze, RectMaze
-from mazelib.maze import N, S, E, W, NORTH, SOUTH, EAST, WEST
+from mazelib.maze import Maze, RectMaze, HexMaze
 
 generators = {}
 def register_gen_class(cls):

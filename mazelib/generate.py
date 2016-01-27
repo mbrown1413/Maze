@@ -2,7 +2,7 @@
 import random
 import collections
 
-from mazelib import Maze, N, S
+from mazelib import Maze
 
 
 class MazeGen():
@@ -45,14 +45,11 @@ class Backtrack(MazeGen):
     """
     name = "backtrack"
 
-    ENTER_SIDE = N
-    EXIT_SIDE = S
-
     def init(self):
 
         # Entrance fixed here to be random
         enter_wall = random.choice(list(
-            self.m.side_get(self.ENTER_SIDE).walls
+            self.m.side_get(self.m.default_enter_side).walls
         ))
         enter_wall.remove()
         enter_cell = enter_wall.c1
@@ -61,7 +58,7 @@ class Backtrack(MazeGen):
         # furthest possible from the entrance. Only at the end will we remove
         # this wall, since these will change during generation.
         self.exit_cell = random.choice(list(
-            self.m.side_get(self.EXIT_SIDE).cells
+            self.m.side_get(self.m.default_exit_side).cells
         ))
         self.exit_dist = 0  # Distance between entrance and exit
 
@@ -73,7 +70,7 @@ class Backtrack(MazeGen):
 
         # Move exit cell if this is further away from the entrance than the
         # current one.
-        if cell.is_on_side(self.EXIT_SIDE) and len(self.stack) > self.exit_dist:
+        if cell.is_on_side(self.m.default_exit_side) and len(self.stack) > self.exit_dist:
             self.exit_dist = len(self.stack)
             self.exit_cell = cell
 
@@ -94,7 +91,7 @@ class Backtrack(MazeGen):
         return self.m
 
     def finish(self):
-        self.exit_cell.get_side_wall(self.EXIT_SIDE).remove()
+        self.exit_cell.get_side_wall(self.m.default_exit_side).remove()
         return self.m
 
     def is_finished(self):
@@ -107,18 +104,15 @@ class BacktrackRecursive(MazeGen):
     """
     name = "backtrack_recursive"
 
-    ENTER_SIDE = N
-    EXIT_SIDE = S
-
     def generate(self):
 
         enter_wall = random.choice(list(
-            self.m.side_get(self.ENTER_SIDE).walls
+            self.m.side_get(self.m.default_enter_side).walls
         ))
         enter_wall.remove()
 
         exit_wall = random.choice(list(
-            self.m.side_get(self.ENTER_SIDE).walls
+            self.m.side_get(self.m.default_exit_side).walls
         ))
         exit_wall.remove()
 
@@ -144,9 +138,6 @@ class Kruskal(MazeGen):
     """
     name = "kruskal"
 
-    ENTER_SIDE = N
-    EXIT_SIDE = S
-
     def init(self):
         self.candidate_walls = filter(lambda w: w.interior, self.m.walls_get_all())
         self.candidate_walls = list(self.candidate_walls)
@@ -155,13 +146,13 @@ class Kruskal(MazeGen):
 
         # Remove random entrance wall
         enter_wall = random.choice(list(
-            self.m.side_get(self.ENTER_SIDE).walls
+            self.m.side_get(self.m.default_enter_side).walls
         ))
         enter_wall.remove()
 
         # Remove random exit wall
         exit_wall = random.choice(list(
-            self.m.side_get(self.EXIT_SIDE).walls
+            self.m.side_get(self.m.default_exit_side).walls
         ))
         exit_wall.remove()
 
