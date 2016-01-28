@@ -5,7 +5,9 @@ if sys.version_info < (3, 2):
 
 
 from mazelib.maze import Maze, RectMaze, HexMaze
+from mazelib import generate
 
+##### Generators #####
 generators = {}
 def register_gen_class(cls):
     assert cls.name != None
@@ -16,14 +18,24 @@ def register_gen_classes(classes):
     for cls in classes:
         register_gen_class(cls)
 
-def gen(maze, alg_name, *args, **kwargs):
-    cls = generators[alg_name]
-    g = cls(maze, *args, **kwargs)
-    return g.generate()
-
-from mazelib import generate
 register_gen_classes([
     generate.Backtrack,
     generate.BacktrackRecursive,
     generate.Kruskal,
+])
+
+##### Maze Types #####
+maze_types = {}
+def register_maze_type(cls):
+    assert cls.name != None
+    assert cls.name not in maze_types
+    maze_types[cls.name] = cls
+
+def register_maze_types(classes):
+    for cls in classes:
+        register_maze_type(cls)
+
+register_maze_types([
+    RectMaze,
+    HexMaze,
 ])

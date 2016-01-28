@@ -20,35 +20,44 @@ def main():
             help="Width of the maze.")
     parser.add_argument("height", nargs="?", type=int, default=30,
             help="Height of the maze.")
-    parser.add_argument("--algorithm", "--alg", "-a", default="backtrack",
+    parser.add_argument("--algorithm", "-a", default="backtrack",
             choices=mazelib.generators.keys(),
-            help='Maze generation algorithm to use. One of: '
-            '{}'.format(list(mazelib.generators.keys())))
+            help="Maze generation algorithm to use.")
     parser.add_argument("--progress", "-p", default=False, action="store_true",
             help="Prints the maze as it is being generated. "
             "Not all generation algorithms support this")
     parser.add_argument("--skip", "-s", default=0, type=int,
             help="When using --progress, skip this many intermediate steps "
             "before printing again.")
+    parser.add_argument("--grid", "-g", default="rect",
+            choices=mazelib.maze_types.keys(),
+            help="Maze grid type to use.")
     args = parser.parse_args()
+
+    maze_cls = mazelib.maze_types[args.grid]
 
     if args.progress:
         clear_chr = get_special_char("clear")
         lineup_chr = get_special_char("cuu1")  # Moves cursor 1 line up
 
-        m = mazelib.RectMaze(args.width, args.height)
+        m = maze_cls(args.width, args.height)
         cls = mazelib.generators[args.algorithm]
         gen = cls(m)
         print(clear_chr)
         for i, m in enumerate(gen.iter_steps()):
             if i % (args.skip+1) == 0:
-                print(lineup_chr*(args.height+1) + m.to_str())
-        if i % (args.skip+1) != 0:
-            print(lineup_chr*(args.height+1) + m.to_str())
+                s = m.to_str()
+                print(lineup_chr*(s.count("\n")+1), end="")
+                print(s)
+
+        print(clear_chr)
+        print(m.to_str())
 
     else:
-        m = mazelib.RectMaze(args.width, args.height)
-        m = mazelib.gen(m, args.algorithm)
+        m = maze_cls(args.width, args.height)
+        cls = mazelib.generators[args.algorithm]
+        gen = cls(m)
+        m = gen.generate()
         print(m.to_str())
 
 

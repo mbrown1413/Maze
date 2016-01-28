@@ -3,6 +3,7 @@ import numpy
 
 
 class Maze():
+    name = None
     default_enter_side = None
     default_exit_side = None
 
@@ -186,6 +187,7 @@ class Wall():
 #################### RectMaze ####################
 
 class RectMaze(Maze):
+    name = "rect"
     N, S, E, W = (1, 2, 4, 8)  # North, South, East West
     OPPOSITE_DIR = {
         N: S,
@@ -332,7 +334,7 @@ class RectMaze(Maze):
 #################### HexMaze ####################
 
 class HexMaze(Maze):
-
+    name = "hex"
     N, S, NE, NW, SE, SW = (1, 2, 4, 8, 16, 32)
     E, W = (64, 128)  # Used for sides, not wall directions
     DIRECTIONS = set((N, S, NE, NW, SE, SW))
