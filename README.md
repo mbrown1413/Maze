@@ -1,30 +1,53 @@
 
 A simple maze generator framework.
 
+## Usage
+
 Requires:
 
   * Python 3
   * numpy
 
-## Usage
+Generate a basic maze and specify width/height:
 
-Generate a basic maze:
+    $ python3 run.py 20 10
+    ╭─┬──╴╶┬─┬───┬──────╮
+    │╷│╶┬╮ │╷│╶╮╷╰╮╶┬╮╶╮│
+    │╰┴╮╵╰┬┴┤├╴│╰╮╰╮╵╰╮╰┤
+    │╷╷╰┬╮│╷│╵╶┼╴├╮╰┬╮├╴│
+    ││╰╮╵│╵│╰──╯╭╯├╴│╵│╶┤
+    │├╮├╴├─┴┬──┬╯╷│╶┴╮├╴│
+    │││╰─╯╷╷╰╴╷│╭┤╰─╴││╷│
+    │╵╰┬─╮│├─╴├╯│╰──┬╯│││
+    ├┬╴│╷╰╯│╭─┤╭╯╷╭╮╰┬╯││
+    │╵╶┤╰──┴╯╷╵╰─╯│╰╴╵╭╯│
+    ╵╶─┴─────┴────┴───┴─╯
 
-    $ python3 run.py
+Use `--grid`/`-g` to change grid types:
 
-Pass maze width and height as arguments:
+    $ python3 run.py 5 10 --grid hex
+      __    __    __    __    __
+     ╱  ╲__╱  ╲__╱   __╱  ╲__╱  ╲__
+     ╲  ╱     ╱   __   ╲     ╲__   ╲
+     ╱   __╱   __╱   __   ╲__   ╲  ╱
+     ╲  ╱  ╲__╱   __╱  ╲__╱  ╲  ╱  ╲
+     ╱  ╲__    __   ╲  ╱   __   ╲  ╱
+     ╲  ╱  ╲__   ╲  ╱  ╲  ╱  ╲__╱  ╲
+     ╱     ╱  ╲__╱  ╲  ╱  ╲__    __╱
+     ╲__╱   __    __╱  ╲__   ╲__   ╲
+     ╱  ╲__╱  ╲__╱   __╱  ╲__      ╱
+     ╲      __    __    __    __╱  ╲
+        ╲__╱  ╲__╱  ╲__╱  ╲__╱  ╲__╱
 
-    $ python3 run.py 10 20
+Use `--algorithm`/`-a` to change generation algorithms:
 
-Use `--algorithm` (or `-a`) to change generation algorithms:
+    $ python3 run.py 10 20 --algorithm kruskal
 
-    $ python3 run.py 10 20 -a kruskal
+Use `--progress`/`-p` to see the maze as it gets generated:
 
-Use `--progress` (or `-p`) to see the maze as it gets generated:
+    $ python3 run.py 10 20 --progress
 
-    $ python3 run.py 10 20 -a kruskal -p
-
-To see more options, use `--help`
+To see more options, use `--help`/`-h`
 
     $ python3 run.py --help
 
