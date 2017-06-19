@@ -58,3 +58,8 @@ Interesting files:
 
   * `mazelib/maze.py` - Maze representation.
   * `mazelib/generate.py` - Maze generation algorithms.
+
+Maze generation resources:
+
+  * [Maze Classification](http://www.astrolog.org/labyrnth/algrithm.htm)
+  * [Visualizing Algorithms: Maze Generation](https://bost.ocks.org/mike/algorithms/#maze-generation)
